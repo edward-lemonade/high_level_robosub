@@ -3,7 +3,7 @@
 
 	<link name="block_link">
 		<inertial>
-			<mass value="1.0"/>
+			<mass value="1000.0"/>
 			<origin xyz="0 0 0"/>
 			<inertia
 				ixx="0.01" ixy="0.0" ixz="0.0"
@@ -12,7 +12,7 @@
 		</inertial>
 		<visual>
 			<geometry>
-				<box size="0.5 0.5 0.5"/>
+				<box size="1 1 1"/>
 			</geometry>
 			<material name="blue">
 				<color rgba="0 0 1 1"/>
@@ -20,7 +20,7 @@
 		</visual>
 		<collision>
 			<geometry>
-				<box size="2 1 0.5"/>
+				<box size="1 1 1"/>
 			</geometry>
 		</collision>
 	</link>

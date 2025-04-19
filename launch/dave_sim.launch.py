@@ -33,6 +33,9 @@ def launch_setup(context, *args, **kwargs):
     else:
         gz_args = [world_name]
 
+    # gz_args.append("-s")  # enable server-only mode (safe default)
+    # gz_args.append("libgz_ros_entity_pose_system.so")  # load the system plugin
+    #gz_args.append(f"-s libgz_ros_entity_pose_system.so")
     if headless.perform(context) == "true":
         gz_args.append(" -s")
     if paused.perform(context) == "false":
@@ -148,7 +151,7 @@ def generate_launch_description():
         ),
         DeclareLaunchArgument(
             "z",
-            default_value="0.0",
+            default_value="2.0",
             description="Initial z position",
         ),
         DeclareLaunchArgument(

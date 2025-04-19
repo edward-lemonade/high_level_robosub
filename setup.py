@@ -27,6 +27,7 @@ setup(
     entry_points={
         'console_scripts': [
 			'rigid_controls = high_level_robosub.rigid_controls:main',
+            'twist_to_pose = high_level_robosub.twist_to_pose_updater:main',
         ],
     },
 )

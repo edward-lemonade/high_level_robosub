@@ -85,7 +85,7 @@ def generate_launch_description():
         [
             FindPackageShare("high_level_robosub"),
             "urdf",
-            "high_level_robosub.sdf",
+            "high_level_robosub.urdf",
         ]
     )
 
@@ -133,7 +133,6 @@ def generate_launch_description():
         condition=IfCondition(gui),
         parameters=[{"use_sim_time": use_sim_time}],
     )
-
     nodes = [tf2_spawner, gz_spawner]
 
     # Include robot_config.py based on the model name
