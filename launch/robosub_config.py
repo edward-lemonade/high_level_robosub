@@ -6,7 +6,8 @@ from launch.actions import DeclareLaunchArgument, OpaqueFunction
 
 def launch_setup(context, *args, **kwargs):
 	robosub_arguments = ([
-		"/keyboard/keypress@std_msgs/msg/Int32@gz.msgs.Int32"
+		"/keyboard/keypress@std_msgs/msg/Int32@gz.msgs.Int32",
+		"/gazebo/set_entity_pose@ros_gz_interfaces/srv/SetEntityPose",
 	])
 	robosub_bridge = Node(
 		package="ros_gz_bridge",
@@ -15,21 +16,20 @@ def launch_setup(context, *args, **kwargs):
 		output="screen",
 	)
 
-	rigid_controls = Node(
+	controls = Node(
 		package="high_level_robosub",
-		executable="rigid_controls", # defined in setup.py
+		executable="twist_controls", # defined in setup.py
 		output="screen",
-		# parameters=[{'use_sim_time': True}],
 	)
 
-	#twist_to_pose = Node(
-	#	package='high_level_robosub',
-	#	executable='twist_to_pose',
-	#	name='twist_to_pose',
-	#	output='screen'
-	#)
+	twist_to_pose = Node(
+		package='high_level_robosub',
+		executable='twist_to_pose',
+		name='twist_to_pose',
+		output='screen'
+	)
 
-	return [robosub_bridge, rigid_controls]
+	return [robosub_bridge, controls, twist_to_pose]
 
 
 def generate_launch_description():

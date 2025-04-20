@@ -1,50 +1,64 @@
-#!/usr/bin/env python
+import rclpy
+from rclpy.node import Node
+from geometry_msgs.msg import Twist
+from std_msgs.msg import Int32
+from gazebo_msgs.srv import ApplyLinkWrench
+import math
 
-import rospy
-from geometry_msgs.msg import Wrench
-from pynput import keyboard
+class ForceControls(Node):
+	force_magnitude = 10
 
-pub = None
-force_step = 5.0
-torque_step = 1.0
+	def __init__(self):
+		super().__init__('force_controls')
 
-def publish_wrench(force, torque):
-    msg = Wrench()
-    msg.force.x, msg.force.y, msg.force.z = force
-    msg.torque.x, msg.torque.y, msg.torque.z = torque
-    pub.publish(msg)
+		self.client = self.create_client(ApplyLinkWrench, '/gazebo/apply_link_wrench')
+		while not self.client.wait_for_service(timeout_sec=1.0):
+			self.get_logger().info('Waiting for /gazebo/apply_link_wrench service...')
 
-def on_press(key):
-    try:
-        f, t = [0, 0, 0], [0, 0, 0]
+		self.force = [0.0, 0.0, 0.0]  
+		self.create_subscription(Int32, '/keyboard/keypress', self.keypress_callback, 10)
 
-        if key.char == 'w': f[0] = force_step   # forward
-        if key.char == 's': f[0] = -force_step  # backward
-        if key.char == 'a': f[1] = force_step   # left
-        if key.char == 'd': f[1] = -force_step  # right
-        if key.char == 'q': f[2] = force_step   # up
-        if key.char == 'e': f[2] = -force_step  # down
+		self.link_name = 'high_level_robosub::base_link'  # Change to your model and link
 
-        if key.char == 'j': t[2] = torque_step  # yaw left
-        if key.char == 'l': t[2] = -torque_step # yaw right
-        if key.char == 'i': t[1] = torque_step  # pitch up
-        if key.char == 'k': t[1] = -torque_step # pitch down
-        if key.char == 'u': t[0] = torque_step  # roll left
-        if key.char == 'o': t[0] = -torque_step # roll right
+	def keypress_callback(self, msg: Int32):
+		key_code = msg.data
+		
+		req = ApplyLinkWrench.Request()
+		req.link_name = self.link_name
 
-        publish_wrench(f, t)
+		req.wrench.force.x = self.force[0]
+		req.wrench.force.y = self.force[1]
+		req.wrench.force.z = self.force[2]
 
-    except AttributeError:
-        pass
+		if key_code == ord('W'):
+			self.force[0] = self.force_magnitude
+		elif key_code == ord('S'):
+			self.force[0] = -self.force_magnitude
+		elif key_code == ord('A'):
+			self.force[1] = self.force_magnitude
+		elif key_code == ord('D'):
+			self.force[1] = -self.force_magnitude
+		elif key_code == ord('V'):
+			self.force[2] = self.force_magnitude
+		elif key_code == ord(' '):
+			self.force[2] = -self.force_magnitude
+		else:
+			# Unknown key
+			return
 
-def main():
-    global pub
-    rospy.init_node('keyboard_force_controller')
-    pub = rospy.Publisher('/block/cmd_force', Wrench, queue_size=1)
+		future = self.client.call_async(req)
+		#self.get_logger().info(f"Keypress {chr(key_code)} -> {twist}")
 
-    listener = keyboard.Listener(on_press=on_press)
-    listener.start()
-    rospy.spin()
+def main(args=None):
+	rclpy.init(args=args)
+	node = ForceControls()
+	try:
+		rclpy.spin(node)
+	except KeyboardInterrupt:
+		pass
+	finally:
+		node.destroy_node()
+		rclpy.shutdown()
 
 if __name__ == '__main__':
-    main()
+	main()
