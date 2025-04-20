@@ -26,7 +26,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-			'rigid_controls = high_level_robosub.rigid_controls:main',
+			'force_controls = high_level_robosub.force_controls:main',
+			'twist_controls = high_level_robosub.twist_controls:main',
             'twist_to_pose = high_level_robosub.twist_to_pose_updater:main',
         ],
     },
